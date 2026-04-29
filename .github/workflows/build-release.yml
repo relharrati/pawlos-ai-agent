@@ -1,0 +1,77 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build
+        run: cargo build --release -p cli
+        env:
+          CI: 'true'
+      
+      - name: Upload Linux Binary
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/release/pawlos
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build
+        run: cargo build --release -p cli
+        env:
+          CI: 'true'
+      
+      - name: Create .dmg
+        run: |
+          mkdir -p dist
+          cp target/release/pawlos dist/
+          cp README.md dist/
+          hdiutil create -volname "pawlos" -srcfolder dist -ov -format UDZO "pawlos-${{ github.ref_name }}-macos.dmg"
+      
+      - name: Upload .dmg
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "pawlos-*.dmg"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build
+        run: cargo build --release -p cli
+        env:
+          CI: 'true'
+      
+      - name: Upload Windows Binary
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/release/pawlos.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
