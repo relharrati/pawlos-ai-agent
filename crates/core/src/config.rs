@@ -45,7 +45,7 @@ pub struct ModelsSection {
 impl Default for ModelsSection {
     fn default() -> Self {
         Self {
-            default: "openai/gpt-4o".into(),
+            default: "openai/gpt-4o-mini".into(), // SML fallback - faster & cheaper
             providers: HashMap::new(),
         }
     }
