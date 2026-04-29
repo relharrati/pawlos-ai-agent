@@ -98,7 +98,7 @@ pub async fn run_onboarding() -> Result<()> {
     println!("{}", "  🔌 MCP Servers (optional)".bold());
     println!("{}\n", "═".repeat(50).dimmed());
 
-    let mcp_options: Vec<&str> = AVAILABLE_MCPS.iter().map(|(_, desc)| desc).collect();
+    let mcp_options: Vec<&str> = AVAILABLE_MCPS.iter().map(|(_, desc)| *desc).collect();
     let mcp_indices = MultiSelect::new()
         .with_prompt("Select MCPs to enable (space to select, enter to confirm)")
         .items(&mcp_options)

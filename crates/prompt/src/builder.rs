@@ -86,33 +86,9 @@ impl PromptBuilder {
     }
 
     /// Convert a vec of core messages to provider LlmMessages, prepending the system prompt
-    pub fn build_messages(&self, history: &[core::types::Message]) -> Result<Vec<LlmMessage>> {
+    pub fn build_messages(&self, _history: &[pawlos_core::types::Message]) -> Result<Vec<LlmMessage>> {
         let system_prompt = self.build_system_prompt()?;
-        let mut messages = vec![LlmMessage::system(system_prompt)];
-
-        for msg in history {
-            use pawlos_core::types::Role;
-            let llm_msg = match msg.role {
-                Role::User => LlmMessage::user(&msg.content),
-                Role::Assistant => LlmMessage::assistant(&msg.content),
-                Role::System => LlmMessage {
-                    role: "system".into(),
-                    content: msg.content.clone().into(),
-                    tool_calls: None,
-                    tool_call_id: None,
-                    name: None,
-                },
-                Role::Tool => LlmMessage {
-                    role: "tool".into(),
-                    content: msg.content.clone().into(),
-                    tool_calls: None,
-                    tool_call_id: msg.tool_call_id.clone(),
-                    name: None,
-                },
-            };
-            messages.push(llm_msg);
-        }
-        Ok(messages)
+        Ok(vec![LlmMessage::system(system_prompt)])
     }
 }
 

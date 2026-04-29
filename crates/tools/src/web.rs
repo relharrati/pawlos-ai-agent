@@ -44,10 +44,10 @@ impl WebTool {
         let body = client.get(&url).send().await?.text().await?;
 
         // Extract result snippets from the HTML (simple pattern)
-        let re = regex::Regex::new(r"class=\"result__snippet\"[^>]*>(.*?)</a>")?;
+        let re = regex::Regex::new("class=\"result__snippet\"").unwrap();
         let mut results = Vec::new();
-        for cap in re.captures_iter(&body).take(num) {
-            let snippet = cap.get(1).map(|m| m.as_str()).unwrap_or("").trim().to_string();
+        for cap in re.find_iter(&body).take(num) {
+            let snippet = cap.as_str().trim().to_string();
             if !snippet.is_empty() { results.push(snippet); }
         }
 

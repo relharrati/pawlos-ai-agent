@@ -3,6 +3,7 @@
 
 use std::thread;
 use std::time::Duration;
+use colored::Colorize;
 
 /// Terminal color codes
 pub mod colors {
@@ -51,18 +52,6 @@ pub mod colors {
         pub const LAVENDER: &str = BRIGHT_MAGENTA;
         pub const SKY: &str = BRIGHT_CYAN;
         
-        pub const SUCCESS: &str = GREEN;
-        pub const WARNING: &str = YELLOW;
-        pub const ERROR: &str = RED;
-        pub const INFO: &str = BLUE;
-        pub const MUTED: &str = DIM;
-    }
-    
-    /// Pawlos brand colors
-    pub mod brand {
-        use super::*;
-        pub const PRIMARY: &str = CYAN;       // Main brand color
-        pub const SECONDARY: &str = MAGENTA; // Accent color  
         pub const SUCCESS: &str = GREEN;
         pub const WARNING: &str = YELLOW;
         pub const ERROR: &str = RED;
@@ -140,6 +129,7 @@ pub mod banner {
 /// Terminal dashboard ASCII - cyan/purple gradient
 pub mod dashboard {
     use super::colors::*;
+    use colored::Colorize;
     
     pub const TERMINAL_ART: &str = r#"
   _   _  ____  ____  ____  ___  __    __    

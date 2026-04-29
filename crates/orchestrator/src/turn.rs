@@ -37,7 +37,7 @@ pub async fn run_turn(
         Some(
             ToolExecutor::all_definitions()
                 .into_iter()
-                .map(|t| core::types::ToolDefinition {
+                .map(|t| pawlos_core::types::ToolDefinition {
                     name: t["name"].as_str().unwrap_or("").to_string(),
                     description: t["description"].as_str().unwrap_or("").to_string(),
                     parameters: t["parameters"].clone(),
@@ -83,7 +83,7 @@ pub async fn run_turn(
 
             let tool_result_msg = Message {
                 id: uuid::Uuid::new_v4(),
-                role: core::types::Role::Tool,
+                role: pawlos_core::types::Role::Tool,
                 content: result,
                 tool_calls: None,
                 tool_call_id: Some(tc.id.clone()),
@@ -100,7 +100,7 @@ pub async fn run_turn(
             model: model_id.to_string(),
             messages,
             tools: if allow_tools {
-                Some(ToolExecutor::all_definitions().into_iter().map(|t| core::types::ToolDefinition {
+                Some(ToolExecutor::all_definitions().into_iter().map(|t| pawlos_core::types::ToolDefinition {
                     name: t["name"].as_str().unwrap_or("").to_string(),
                     description: t["description"].as_str().unwrap_or("").to_string(),
                     parameters: t["parameters"].clone(),

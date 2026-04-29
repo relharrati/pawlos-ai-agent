@@ -94,8 +94,8 @@ impl McpClient {
 
 /// MCP Registry - manages all configured MCP servers
 pub struct McpRegistry {
-    servers: HashMap<String, McpServer>,
-    clients: HashMap<String, McpClient>,
+    pub servers: HashMap<String, McpServer>,
+    pub clients: HashMap<String, McpClient>,
 }
 
 impl McpRegistry {

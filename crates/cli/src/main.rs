@@ -1,8 +1,10 @@
 mod onboard;
 mod repl;
 mod commands;
+mod ui;
 
-use commands::McpCmd;
+// Re-export for commands module
+pub use self::commands::*;
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
@@ -63,10 +65,10 @@ enum Command {
 enum MemoryCmd { Read, Add, Remove, Consolidate }
 
 #[derive(clap::ValueEnum, Clone)]
-enum SkillCmd { List, Load, Create }
+pub enum SkillCmd { List, Load, Create }
 
 #[derive(clap::ValueEnum, Clone)]
-enum McpCmd { List, Add, Remove }
+pub enum McpCmd { List, Add, Remove }
 
 #[tokio::main]
 async fn main() -> Result<()> {

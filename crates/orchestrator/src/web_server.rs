@@ -5,7 +5,7 @@ use axum::{
     Router, Json, response::IntoResponse,
 };
 use tower_http::cors::CorsLayer;
-use tower_http::fs::ServeDir;
+use tower_http::services::ServeDir;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;

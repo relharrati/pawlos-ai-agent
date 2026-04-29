@@ -67,7 +67,7 @@ pub async fn run_repl(
             let name = input["/skill ".len()..].trim();
             match tools::skill::Skill::load(name) {
                 Ok(skill) => {
-                    println!("\n{}{}{}:{}{}", colors::BRIGHT_GREEN, colors::BOLD, skill.name, colors::RESET);
+                    println!("\n{}{}{}{}", colors::BRIGHT_GREEN, colors::BOLD, skill.name, colors::RESET);
                     println!("{}{}", colors::DIM, skill.description);
                     println!("\n{}", skill.prompt);
                 }
@@ -90,7 +90,7 @@ pub async fn run_repl(
 
         if input == "/help" || input == "/?" {
             println!();
-            println!("{}{}━━━ Available Commands ━━━{}", colors::CYAN, colors::BOLD);
+            println!("{}{}{}", colors::CYAN, colors::BOLD, "━━━ Available Commands ━━━");
             println!();
             println!("{}  /personality <name>   {}Switch conversation tone", colors::BRIGHT_CYAN, colors::DIM);
             println!("{}  /model <name>         {}Change LLM model", colors::BRIGHT_CYAN, colors::DIM);
@@ -100,14 +100,13 @@ pub async fn run_repl(
             println!("{}  /help                 {}Show this help", colors::BRIGHT_CYAN, colors::DIM);
             println!("{}  /exit                 {}Exit the chat", colors::BRIGHT_CYAN, colors::DIM);
             println!();
-            println!("{}{}━━━━━━━━━━━━━━━━━━━━━━━{}", colors::DIM, colors::BRIGHT_CYAN);
+            println!("{}{}{}", colors::DIM, "━━━━━━━━━━━━━━━━━━━━━━━", colors::BRIGHT_CYAN);
             println!();
             continue;
         }
 
         // Normal message - branded agent response
         print!("\n{} ", format!("{}{}>{}", colors::BRIGHT_MAGENTA, colors::BOLD, agent_name));
-        use std::io::Write;
         std::io::stdout().flush()?;
 
         match run_turn(

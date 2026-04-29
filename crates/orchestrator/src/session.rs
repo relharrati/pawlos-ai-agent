@@ -61,7 +61,7 @@ impl SessionManager {
         self.sessions.lock().await.get(&id).cloned()
     }
 
-    pub async fn push_message(&self, session_id: Uuid, msg: core::types::Message) -> Result<()> {
+    pub async fn push_message(&self, session_id: Uuid, msg: pawlos_core::types::Message) -> Result<()> {
         let mut sessions = self.sessions.lock().await;
         if let Some(session) = sessions.get_mut(&session_id) {
             // Persist message
