@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-core = { path = "../core" }
+pawlos-core = { path = "../core" }
 memory = { path = "../memory" }
 provider = { path = "../provider" }
 prompt = { path = "../prompt" }

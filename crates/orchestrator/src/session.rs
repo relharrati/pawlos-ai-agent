@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use anyhow::Result;
-use core::types::Session;
-use core::db::Database;
+use pawlos_core::types::Session;
+use pawlos_core::db::Database;
 use uuid::Uuid;
 
 /// Manages all active sessions in memory; persists to SQLite on changes

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use anyhow::Result;
 use uuid::Uuid;
-use core::types::Message;
+use pawlos_core::types::Message;
 use provider::registry::ProviderRegistry;
 use provider::types::{ChatRequest, LlmMessage};
 use prompt::builder::{PromptBuilder, builtin_personality};

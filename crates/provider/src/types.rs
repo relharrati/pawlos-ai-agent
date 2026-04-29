@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use core::types::ToolDefinition;
+use pawlos_core::types::ToolDefinition;
 
 /// Message format sent to the LLM API
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -3,7 +3,7 @@ use colored::Colorize;
 use crate::{MemoryCmd, SkillCmd, McpCmd};
 use memory::store::{MemoryStore, StoreKind};
 use tools::skill::Skill;
-use core::Config;
+use pawlos_core::Config;
 
 pub fn memory_cmd(action: MemoryCmd, store_str: &str, args: &[String]) -> Result<()> {
     let kind = StoreKind::from_str(store_str)

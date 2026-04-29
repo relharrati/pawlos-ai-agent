@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use anyhow::Result;
-use core::Config;
+use pawlos_core::Config;
 use orchestrator::{AgentManager, AgentState};
 
 /// Actions for managing sub-agents

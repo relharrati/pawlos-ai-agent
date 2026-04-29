@@ -1,11 +1,11 @@
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use anyhow::Result;
-use core::Config;
+use pawlos_core::Config;
 use crate::turn::run_turn;
 use provider::registry::ProviderRegistry;
 use crate::session::SessionManager;
-use core::db::Database;
+use pawlos_core::db::Database;
 
 /// Periodic heartbeat scheduler
 pub struct Heartbeat {

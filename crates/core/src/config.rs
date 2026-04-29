@@ -127,33 +127,38 @@ impl Config {
 
     /// Get the project root (for dev mode) or fall back to base_dir
     fn get_project_or_base(&self, folder: &str) -> PathBuf {
-        // Check for project root folder first
-        std::env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(|p| p.parent()))
-            .map(|p| p.join(folder))
-            .filter(|p| p.exists())
-            .unwrap_or_else(|| Self::base_dir().join(folder))
+        // Check for project root folder first (grandparent of exe)
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(parent) = exe.parent() {
+                if let Some(grandparent) = parent.parent() {
+                    let candidate = grandparent.join(folder);
+                    if candidate.exists() {
+                        return candidate;
+                    }
+                }
+            }
+        }
+        Self::base_dir().join(folder)
     }
 
     /// Context directory - memory files (SOUL.md, USER.md, MEMORY.md, LONGTERM.md)
     pub fn context_dir() -> PathBuf {
-        Self::new().get_project_or_base("context")
+        Self::default().get_project_or_base("context")
     }
 
     /// Reusable skills created during chat (make_pdf.skill, etc.)
     pub fn skills_dir() -> PathBuf {
-        Self::new().get_project_or_base("skills")
+        Self::default().get_project_or_base("skills")
     }
 
     /// Sub-agents directory (each agent has their own folder)
     pub fn agents_dir() -> PathBuf {
-        Self::new().get_project_or_base("agents")
+        Self::default().get_project_or_base("agents")
     }
 
     /// Daily logs directory (YYYY-MM-DD.md files)
     pub fn memory_dir() -> PathBuf {
-        Self::new().get_project_or_base("memory")
+        Self::default().get_project_or_base("memory")
     }
 
     /// Legacy - backward compatibility

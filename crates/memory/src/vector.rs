@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use anyhow::Result;
-use core::Config;
+use pawlos_core::Config;
 
 /// Vector embedding entry for semantic search
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -94,9 +94,7 @@ impl VectorStore {
                 entry.id,
                 entry.store,
                 entry.content,
-                rusqlite::types::Blob::from_bytes(
-                    &bincode::serialize(&entry.embedding).unwrap_or_default()
-                ),
+bincode::serialize(&entry.embedding).unwrap_or_default(),
                 entry.created_at,
                 serde_json::to_string(&entry.metadata).unwrap_or_default(),
             ],
@@ -142,7 +140,7 @@ impl VectorStore {
              LIMIT ?3"
         )?;
         
-        let entries = stmt.query_map(
+let entries = stmt.query_map(
             rusqlite::params![store, query_pattern, limit as i64],
             |row| {
                 let id: String = row.get(0)?;
@@ -151,12 +149,12 @@ impl VectorStore {
                 let _embedding: Option<Vec<u8>> = row.get(3)?;
                 let created_at: String = row.get(4)?;
                 let metadata_str: String = row.get(5)?;
-                
+
                 Ok(VectorEntry {
                     id,
                     store,
                     content,
-                    embedding: Vec::new(), // Simplified
+                    embedding: _embedding.and_then(|v| bincode::deserialize(&v).ok()).unwrap_or_default(),
                     created_at,
                     metadata: serde_json::from_str(&metadata_str).unwrap_or_default(),
                 })

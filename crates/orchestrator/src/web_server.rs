@@ -10,7 +10,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use core::Config;
+use pawlos_core::Config;
 use provider::registry::ProviderRegistry;
 use crate::session::SessionManager;
 use crate::turn::run_turn;

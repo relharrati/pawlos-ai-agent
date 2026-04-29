@@ -1,5 +1,5 @@
 use anyhow::Result;
-use core::Config;
+use pawlos_core::Config;
 use memory::store::{MemoryStore, StoreKind};
 use provider::types::LlmMessage;
 
@@ -91,7 +91,7 @@ impl PromptBuilder {
         let mut messages = vec![LlmMessage::system(system_prompt)];
 
         for msg in history {
-            use core::types::Role;
+            use pawlos_core::types::Role;
             let llm_msg = match msg.role {
                 Role::User => LlmMessage::user(&msg.content),
                 Role::Assistant => LlmMessage::assistant(&msg.content),

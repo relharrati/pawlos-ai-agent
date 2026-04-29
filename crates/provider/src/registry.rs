@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 use anyhow::Result;
-use core::Config;
+use pawlos_core::Config;
 use crate::client::{OpenAiCompatClient, ProviderClient};
 
 /// Registry of all configured provider clients

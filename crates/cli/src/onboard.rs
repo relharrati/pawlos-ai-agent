@@ -1,7 +1,7 @@
 use anyhow::Result;
 use dialoguer::{Input, Select, Password, Confirm, MultiSelect};
 use colored::Colorize;
-use core::{Config, config::*};
+use pawlos_core::{Config, config::*};
 use memory::store::MemoryStore;
 use std::collections::HashMap;
 use crate::ui::{self, colors, quotes};

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
-use core::Config;
+use pawlos_core::Config;
 
 /// Which memory store to target
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -394,8 +394,8 @@ _Last updated: never_
         // AGENTS.md - Workspace instructions
         let agents_path = skills_dir.join("AGENTS.md");
         if !agents_path.exists() {
-            std::fs::write(&agents_path,
-"# AGENTS.md - Your Workspace
+            std::fs::write(&agents_path, format!(
+r#"# AGENTS.md - Your Workspace
 
 This folder is your working directory - your memory.
 
@@ -415,21 +415,21 @@ This folder is your working directory - your memory.
 
 ## Memory Rules
 - If you want to remember something, WRITE IT TO A FILE
-- "Mental notes" don't survive session restarts
-- Text > Brain 📝
+- Notes do not survive session restarts
+- Text is better than brain
 
 ---
 _Last updated: {date}
 "#,
                 date = chrono::Local::now().format("%Y-%m-%d")
-            )?;
+            ))?;
         }
 
         // TOOLS.md - Tools and capabilities
         let tools_path = skills_dir.join("TOOLS.md");
         if !tools_path.exists() {
-            std::fs::write(&tools_path,
-"# TOOLS.md - Your Capabilities
+            std::fs::write(&tools_path, format!(
+r#"# TOOLS.md - Your Capabilities
 
 ## Available Tools
 - shell: Execute terminal commands
@@ -447,7 +447,7 @@ _Last updated: {date}
 _Last updated: {date}
 "#,
                 date = chrono::Local::now().format("%Y-%m-%d")
-            )?;
+            ))?;
         }
 
         // Create today's daily log

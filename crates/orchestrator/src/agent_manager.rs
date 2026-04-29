@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use anyhow::Result;
-use core::{Config, types::AgentConfig};
+use pawlos_core::{Config, types::AgentConfig};
 
 /// Agent state for tracking what an agent is doing
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

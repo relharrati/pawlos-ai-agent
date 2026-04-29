@@ -8,7 +8,7 @@ name = "pawlos"
 path = "src/main.rs"
 
 [dependencies]
-core = { path = "../core" }
+pawlos-core = { path = "../core" }
 memory = { path = "../memory" }
 orchestrator = { path = "../orchestrator" }
 provider = { path = "../provider" }

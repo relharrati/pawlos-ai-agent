@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 use anyhow::Result;
-use core::{Config, types::AgentConfig};
+use pawlos_core::{Config, types::AgentConfig};
 
 /// Registry of all sub-agent configs
 pub struct AgentRegistry {

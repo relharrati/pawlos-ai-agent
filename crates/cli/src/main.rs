@@ -10,7 +10,7 @@ use tracing_subscriber::EnvFilter;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use core::{Config, Database};
+use pawlos_core::{Config, Database};
 use memory::store::MemoryStore;
 use orchestrator::{SessionManager, Heartbeat, AgentRegistry, WebServer};
 use orchestrator::web_server::AppState;

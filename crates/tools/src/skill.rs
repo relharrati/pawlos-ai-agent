@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use core::Config;
+use pawlos_core::Config;
 
 /// A skill stored as a YAML file in ~/.pawlos/skills/
 #[derive(Debug, Clone, Serialize, Deserialize)]
