@@ -29,14 +29,15 @@ function err(msg)  { log(`[ err  ] ${msg}`, 'red'); process.exit(1); }
 
 // Print banner
 function printBanner() {
-  console.log(`${colors.magenta}`);
-  console.log(`  ____    _             _           _           `);
-  console.log(` |  _ \\  | |           | |         | |         `);
-  console.log(` | | | | | |_  _   _  | |_  _   _ | |_        `);
-  console.log(` | | | | | __|| | | | | __|| | | || __|       `);
-  console.log(` | |_| | | |_ | |_| | | |_ | |_| || |_        `);
-  console.log(`  \\___/   \\__| \\__,_|  \\__| \\__,_| \\__|       `);
+  console.log(`${colors.cyan}`);
+  console.log(`  _____   __          ___           ____   _____  `);
+  console.log(` |  __ \\ /\\ \\        / / |         / __ \\ / ____| `);
+  console.log(` | |__) /  \\ \\  /\\  / /| |  ______| |  | | (___   `);
+  console.log(` |  ___/ /\\ \\ \\/  \\/ / | | |______| |  | |\\___ \\  `);
+  console.log(` | |  / ____ \\  /\\  /  | |____    | |__| |____) |`);
+  console.log(` |_| /_/    \\_\\/  \\/   |______|    \\____/|_____/ `);
   console.log(`${colors.reset}`);
+  console.log(`${colors.magenta}  u r   a g e n t   |   b u d d y${colors.reset}`);
 }
 
 // Download file helper
@@ -135,7 +136,9 @@ async function main() {
   if (!foundPath) {
     printBanner();
     console.log('');
-    err('pawlos not found. Install with:');
+    err('Rust binary not installed yet');
+    console.log('');
+    console.log('The npm package is just a shim. Install the actual pawlos:');
     console.log('');
     const platform = os.platform();
     if (platform === 'win32') {
@@ -143,8 +146,6 @@ async function main() {
     } else {
       console.log(`  ${colors.green}curl -sSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/install.sh | bash${colors.reset}`);
     }
-    console.log('');
-    console.log(`  Or via npx: ${colors.green}npx https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/bin/pawlos.js${colors.reset}`);
     console.log('');
     return;
   }
