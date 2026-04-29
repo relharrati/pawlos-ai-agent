@@ -39,6 +39,24 @@ detect_target() {
     echo "${os}-${arch}"
 }
 
+# ── ensure curl is available ───────────────────────────────────────────────────
+ensure_curl() {
+    if command -v curl &>/dev/null; then return 0; fi
+    if command -v wget &>/dev/null; then return 0; fi
+    
+    info "curl/wget not found, trying to install..."
+    
+    if command -v apt-get &>/dev/null; then
+        apt-get update -qq && apt-get install -y -qq curl wget 2>/dev/null && return 0
+    elif command -v yum &>/dev/null; then
+        yum install -y curl wget 2>/dev/null && return 0
+    elif command -v apk &>/dev/null; then
+        apk add curl wget 2>/dev/null && return 0
+    fi
+    
+    err "curl or wget required. Please install manually."
+}
+
 # ── download binary or build from source ───────────────────────────────────────────
 download_binary() {
     local target="$1"
@@ -52,6 +70,8 @@ download_binary() {
     mkdir -p "$INSTALL_DIR"
 
     # Try to download pre-built binary first
+    ensure_curl
+    
     info "Trying to download pawlos for ${target}..."
     if command -v curl &>/dev/null; then
         if curl -sfL "$url" -o "$dest" 2>/dev/null; then

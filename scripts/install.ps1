@@ -78,15 +78,20 @@ try {
     Write-Err "Failed to download: $_"
 }
 
-# Add to PATH
+# Add to PATH (current session + persistent)
 $pathEntry = $INSTALL_DIR
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$pathEntry*") {
-    [Environment]::SetEnvironmentVariable("Path", "$currentPath;$pathEntry", "User")
+    $newPath = "$currentPath;$pathEntry"
+    [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+    $env:Path = "$env:Path;$pathEntry"  # Current session
     Write-Ok "Added to PATH"
 } else {
     Write-Info "Already in PATH"
 }
+
+# Show where it was installed
+Write-Info "Installed to: $INSTALL_DIR\pawlos.exe"
 
 # Create config directory structure
 New-Item -ItemType Directory -Path "$CONFIG_DIR\memories" -Force | Out-Null
