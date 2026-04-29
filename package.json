@@ -1,0 +1,32 @@
+{
+  "name": "pawlos-ai",
+  "version": "1.0.0",
+  "description": "Persistent, self-evolving AI agent - Rust core, TypeScript web UI, SQLite memory",
+  "author": "pawlos",
+  "license": "MIT",
+  "bin": {
+    "pawlos": "./scripts/bin/pawlos.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/relharrati/pawlos-ai-agent.git"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "llm",
+    "cli",
+    "assistant"
+  ],
+  "preferGlobal": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node scripts/bin/pawlos.js",
+    "postinstall": "node scripts/bin/pawlos.js install-deps"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2"
+  }
+}
