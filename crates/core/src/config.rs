@@ -52,16 +52,32 @@ impl Default for ModelsSection {
             base_url: Some("http://localhost:11434/v1".to_string()),
             default_model: Some("qwen2.5:7b".to_string()),
             models: Some(vec![
+                // High-end (8B+)
+                "llama3.1:70b".to_string(),
                 "qwen2.5:14b".to_string(),
                 "qwen2.5:7b".to_string(),
                 "llama3.1:8b".to_string(),
-                "llama3.1:70b".to_string(),
                 "mistral:7b".to_string(),
                 "phi4:14b".to_string(),
                 "codellama:7b".to_string(),
-                "phi3:14b".to_string(),
                 "gemma2:9b".to_string(),
+                // Medium (3-7B)
+                "phi3:14b".to_string(),
+                "qwen2.5:4b".to_string(),
+                "phi3.5:3.8b".to_string(),
+                // Light (1-3B)
                 "phi3:3.8b".to_string(),
+                "gemma2:2b".to_string(),
+                "llama3.2:3b".to_string(),
+                "llama3.2:1b".to_string(),
+                // Tiny (≤1B)
+                "tinyllama:1.1b".to_string(),
+                "phi2:2.7b".to_string(),
+                "stableLM:3b".to_string(),
+                "SmolLM2:360m".to_string(),
+                "SmolLM2:1.7b".to_string(),
+                "deepseek-coder:1.3b".to_string(),
+                "deepseek-coder:0.5b".to_string(),
             ]),
         });
         

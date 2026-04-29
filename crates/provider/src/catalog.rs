@@ -127,20 +127,37 @@ impl ModelCatalog {
     /// Pawlos local models - these are loaded from Ollama on the user's device
     fn pawlos_local_models() -> Vec<ModelInfo> {
         vec![
-            // High-end local models (8B+ params - needs good GPU)
+            // === HIGH-END (8B+ params) - needs GPU with 16GB+ VRAM ===
+            ModelInfo { id: "llama3.1:70b".into(), name: "Llama 3.1 70B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["reasoning".into(), "balanced".into()] },
             ModelInfo { id: "qwen2.5:14b".into(), name: "Qwen 2.5 14B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["coding".into(), "balanced".into()] },
             ModelInfo { id: "qwen2.5:7b".into(), name: "Qwen 2.5 7B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
             ModelInfo { id: "llama3.1:8b".into(), name: "Llama 3.1 8B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["balanced".into()] },
-            ModelInfo { id: "llama3.1:70b".into(), name: "Llama 3.1 70B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["reasoning".into(), "balanced".into()] },
             ModelInfo { id: "mistral:7b".into(), name: "Mistral 7B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
             ModelInfo { id: "phi4:14b".into(), name: "Phi 4 14B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["coding".into()] },
             ModelInfo { id: "codellama:7b".into(), name: "CodeLlama 7B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["coding".into()] },
-            // Medium models (3-7B params - works on most modern laptops)
-            ModelInfo { id: "phi3:14b".into(), name: "Phi 3 14B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
             ModelInfo { id: "gemma2:9b".into(), name: "Gemma 2 9B".into(), context_length: 8192, supports_tools: true, is_local: true, recommended_for: vec!["balanced".into()] },
-            // Light models (1-3B params - works on any device)
+            
+            // === MEDIUM (3-7B params) - works on modern laptops with 8GB+ RAM ===
+            ModelInfo { id: "phi3:14b".into(), name: "Phi 3 14B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "qwen2.5:4b".into(), name: "Qwen 2.5 4B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "phi3.5:3.8b".into(), name: "Phi 3.5 3.8B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
+            
+            // === LIGHT (1-3B params) - works on any device, even old laptops ===
             ModelInfo { id: "phi3:3.8b".into(), name: "Phi 3 3.8B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
-            ModelInfo { id: "tinyllama:1.1b".into(), name: "TinyLlama 1.1B".into(), context_length: 2048, supports_tools: false, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "gemma2:2b".into(), name: "Gemma 2 2B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "llama3.2:3b".into(), name: "Llama 3.2 3B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "llama3.2:1b".into(), name: "Llama 3.2 1B".into(), context_length: 4096, supports_tools: true, is_local: true, recommended_for: vec!["fast".into()] },
+            
+            // === TINY (≤1B params) - works on anything, even Raspberry Pi ===
+            ModelInfo { id: "tinyllama:1.1b".into(), name: "TinyLlama 1.1B".into(), context_length: 2048, supports_tools: false, is_local: true, recommended_for: vec!["ultra_fast".into()] },
+            ModelInfo { id: "phi2:2.7b".into(), name: "Phi 2 2.7B".into(), context_length: 2048, supports_tools: false, is_local: true, recommended_for: vec!["ultra_fast".into()] },
+            ModelInfo { id: "stableLM:3b".into(), name: "StableLM 3B".into(), context_length: 4096, supports_tools: false, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "mobiuslab:qwen-0.5b".into(), name: "Qwen 0.5B".into(), context_length: 1024, supports_tools: false, is_local: true, recommended_for: vec!["ultra_fast".into()] },
+            ModelInfo { id: "aya:0.5b".into(), name: "Aya 0.5B".into(), context_length: 1024, supports_tools: false, is_local: true, recommended_for: vec!["ultra_fast".into()] },
+            ModelInfo { id: "SmolLM2:360m".into(), name: "SmolLM2 360M".into(), context_length: 1024, supports_tools: false, is_local: true, recommended_for: vec!["ultra_fast".into()] },
+            ModelInfo { id: "SmolLM2:1.7b".into(), name: "SmolLM2 1.7B".into(), context_length: 2048, supports_tools: false, is_local: true, recommended_for: vec!["fast".into()] },
+            ModelInfo { id: "deepseek-coder:1.3b".into(), name: "DeepSeek Coder 1.3B".into(), context_length: 2048, supports_tools: true, is_local: true, recommended_for: vec!["coding".into()] },
+            ModelInfo { id: "deepseek-coder:0.5b".into(), name: "DeepSeek Coder 0.5B".into(), context_length: 1024, supports_tools: false, is_local: true, recommended_for: vec!["ultra_fast".into()] },
         ]
     }
 
@@ -168,14 +185,16 @@ pub struct DeviceCapabilities {
 /// Performance tiers for local models
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DeviceTier {
-    /// Can run 70B+ models
+    /// Can run 70B+ models (32GB+ RAM or 16GB+ GPU)
     HighEnd,
-    /// Can run 14B-70B models
+    /// Can run 14B-70B models (16GB RAM or 8GB GPU)
     MidRange,
-    /// Can run 7B-14B models
+    /// Can run 7B-14B models (8GB RAM)
     EntryLevel,
-    /// Can only run 1-7B models
+    /// Can run 1B-7B models (4-8GB RAM)
     LowEnd,
+    /// Can only run ≤1B models (<4GB RAM, old laptops, Pi)
+    UltraLowEnd,
 }
 
 impl LocalModelDetector {
@@ -266,8 +285,12 @@ impl LocalModelDetector {
         if caps.ram_gb >= 8.0 {
             return DeviceTier::EntryLevel;
         }
-        // Low-end: less than 8GB
-        DeviceTier::LowEnd
+        // Low-end: 4-8GB RAM - can still run small models
+        if caps.ram_gb >= 4.0 {
+            return DeviceTier::LowEnd;
+        }
+        // Ultra low-end: <4GB RAM - only tiny models work
+        DeviceTier::UltraLowEnd
     }
 
     /// Recommend the best local model based on device capabilities
@@ -299,11 +322,18 @@ impl LocalModelDetector {
                     .unwrap_or_else(|| "qwen2.5:7b".into())
             }
             DeviceTier::LowEnd => {
-                // Lightweight model for older devices
+                // Lightweight model for older devices (3B params)
                 models.iter()
-                    .find(|m| m.id.contains("3.8b") || m.id.contains("phi3:3.8b"))
+                    .find(|m| m.id.contains("3b") || m.id.contains("phi3:3.8b") || m.id.contains("gemma2:2b"))
                     .map(|m| m.id.clone())
                     .unwrap_or_else(|| "phi3:3.8b".into())
+            }
+            DeviceTier::UltraLowEnd => {
+                // Tiny models for very old/low-RAM devices (≤1B params)
+                models.iter()
+                    .find(|m| m.id.contains("360m") || m.id.contains("0.5b") || m.id.contains("1.1b"))
+                    .map(|m| m.id.clone())
+                    .unwrap_or_else(|| "tinyllama:1.1b".into())
             }
         }
     }
