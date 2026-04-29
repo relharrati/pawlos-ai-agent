@@ -7,6 +7,7 @@
 set -euo pipefail
 
 REPO="https://github.com/relharrati/pawlos-ai-agent"
+BRANCH="master"
 BIN_NAME="pawlos"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 CONFIG_DIR="$HOME/.pawlos"
@@ -38,7 +39,7 @@ detect_target() {
     echo "${os}-${arch}"
 }
 
-# ── download binary ───────────────────────────────────────────
+# ── download binary or build from source ───────────────────────────────────────────
 download_binary() {
     local target="$1"
     local version="${2:-latest}"
@@ -50,12 +51,32 @@ download_binary() {
 
     mkdir -p "$INSTALL_DIR"
 
-    info "Downloading pawlos ${version} for ${target}..."
+    # Try to download pre-built binary first
+    info "Trying to download pawlos for ${target}..."
     if command -v curl &>/dev/null; then
-        curl -fsSL "$url" -o "$dest"
-    elif command -v wget &>/dev/null; then
-        wget -q "$url" -O "$dest"
-    else
+        if curl -sfL "$url" -o "$dest" 2>/dev/null; then
+            ok "Downloaded pre-built binary"
+            return 0
+        fi
+    fi
+
+    # If download fails, build from source
+    info "No pre-built binary found. Building from source..."
+    if ! command -v cargo &>/dev/null; then
+        err "cargo not found. Install Rust: https://rustup.rs"
+    fi
+
+    local temp_dir=$(mktemp -d)
+    cd "$temp_dir"
+    git clone --depth 1 --branch "${BRANCH:-master}" "${REPO}.git" pawlos_src 2>/dev/null || \
+    git clone --depth 1 "${REPO}.git" pawlos_src
+    cd pawlos_src
+    cargo build --release -p cli --quiet
+    cp "target/release/${BIN_NAME}${ext}" "$dest"
+    cd /
+    rm -rf "$temp_dir"
+    ok "Built from source"
+}
         err "Neither curl nor wget found. Please install one."
     fi
 

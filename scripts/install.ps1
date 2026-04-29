@@ -7,6 +7,7 @@ $ErrorActionPreference = "Stop"
 
 # Config
 $REPO = "relharrati/pawlos-ai-agent"
+$BRANCH = "master"
 $BIN_NAME = "pawlos"
 $INSTALL_DIR = "$env:LOCALAPPDATA\Programs\pawlos"
 $CONFIG_DIR = "$env:USERPROFILE\.pawlos"

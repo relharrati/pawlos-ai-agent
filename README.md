@@ -6,17 +6,17 @@
 
 ### 🖥️ Windows (PowerShell)
 ```powershell
-iwr -useb https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/master/scripts/install.ps1 | iex
 ```
 
 ### 🍎 Linux/macOS (curl)
 ```bash
-curl -sSL https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/master/scripts/install.sh | bash
 ```
 
-### 📦 npm/npx
+### 📦 npx (uses remote scripts)
 ```bash
-npx pawlos-ai
+npx https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/master/scripts/bin/pawlos.js
 ```
 
 ### 🛠️ Build from source (requires Rust)

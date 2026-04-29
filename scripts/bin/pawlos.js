@@ -8,6 +8,7 @@ const https = require('https');
 const http = require('http');
 
 const REPO = 'relharrati/pawlos-ai-agent';
+const BRANCH = 'master';
 
 const colors = {
   reset: '\x1b[0m',
@@ -105,10 +106,10 @@ async function main() {
     
     if (isWin) {
       info('Use PowerShell:');
-      console.log(`${colors.green}  iwr -useb https://raw.githubusercontent.com/${REPO}/main/scripts/install.ps1 | iex${colors.reset}`);
+      console.log(`${colors.green}  iwr -useb https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/install.ps1 | iex${colors.reset}`);
     } else {
       info('Use curl:');
-      console.log(`${colors.green}  curl -sSL https://raw.githubusercontent.com/${REPO}/main/scripts/install.sh | bash${colors.reset}`);
+      console.log(`${colors.green}  curl -sSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/install.sh | bash${colors.reset}`);
     }
     return;
   }
@@ -138,12 +139,12 @@ async function main() {
     console.log('');
     const platform = os.platform();
     if (platform === 'win32') {
-      console.log(`  ${colors.green}iwr -useb https://raw.githubusercontent.com/${REPO}/main/scripts/install.ps1 | iex${colors.reset}`);
+      console.log(`  ${colors.green}iwr -useb https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/install.ps1 | iex${colors.reset}`);
     } else {
-      console.log(`  ${colors.green}curl -sSL https://raw.githubusercontent.com/${REPO}/main/scripts/install.sh | bash${colors.reset}`);
+      console.log(`  ${colors.green}curl -sSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/install.sh | bash${colors.reset}`);
     }
     console.log('');
-    console.log(`  Or via npx: ${colors.green}npx pawlos-ai-agent${colors.reset}`);
+    console.log(`  Or via npx: ${colors.green}npx https://raw.githubusercontent.com/${REPO}/${BRANCH}/scripts/bin/pawlos.js${colors.reset}`);
     console.log('');
     return;
   }
