@@ -1,5 +1,5 @@
 use anyhow::Result;
-use dialoguer::{Input, Select, Password, Confirm, MultiSelect};
+use dialoguer::{Input, Select, Password, MultiSelect};
 use colored::Colorize;
 use pawlos_core::{Config, config::*};
 use memory::store::MemoryStore;
@@ -19,63 +19,80 @@ const AVAILABLE_MCPS: &[(&str, &str)] = &[
 ];
 
 pub async fn run_onboarding() -> Result<()> {
-    print_awakening_animation();
-
-    // Show branding
+    // Clear screen and show branding
+    print!("\x1b[2J\x1b[H");
     ui::logo::print();
     ui::banner::print();
     
     println!();
-    println!("{}{}  🤖 pawlos — first run setup{}", colors::DIM, colors::BOLD, colors::RESET);
-    println!("{}", "═".repeat(50).dimmed());
+    println!("{}", "━".repeat(60).bright_cyan());
+    println!("{}  pawlos — First Run Setup", " ".bright_cyan());
+    println!("{}", "━".repeat(60).bright_cyan());
     println!();
 
     // Agent name
+    println!("{}", "Step 1/4: Agent Identity".bold().bright_blue());
+    println!("{}", "─".repeat(30).dimmed());
     let agent_name: String = Input::new()
-        .with_prompt("🤖 Who am I?  (agent name, e.g. \"pawlos\", \"Rusty\", \"Athena\")")
+        .with_prompt("Who am I? (agent name)")
         .default("pawlos".into())
         .interact_text()?;
+    println!("{} ✓ Agent name set to: {}", " ".dimmed(), agent_name.bright_cyan());
 
     // User name
-    let user_name: String = Input::new()
-        .with_prompt("👤 Who are you?  (your name or handle)")
-        .interact_text()?;
-
     println!();
+    println!("{}", "Step 2/4: User Identity".bold().bright_blue());
+    println!("{}", "─".repeat(30).dimmed());
+    let user_name: String = Input::new()
+        .with_prompt("Who are you? (your name)")
+        .interact_text()?;
+    println!("{} ✓ User name set to: {}", " ".dimmed(), user_name.bright_cyan());
 
     // Provider selection
+    println!();
+    println!("{}", "Step 3/4: LLM Provider".bold().bright_blue());
+    println!("{}", "─".repeat(30).dimmed());
+    
     let providers = vec![
         "OpenAI (GPT-4o)",
         "Anthropic (Claude)",
         "OpenRouter (200+ models)",
         "Google (Gemini)",
         "Groq (fast inference)",
-        "Ollama / local",
+        "Ollama / Local (pawlos default)",
         "Custom HTTP endpoint",
     ];
+    
     let provider_idx = Select::new()
-        .with_prompt("🔌 Choose your LLM provider")
+        .with_prompt("Choose your LLM provider")
         .items(&providers)
-        .default(0)
+        .default(5)  // Default to Ollama/local
         .interact()?;
-
+    
     let (provider_key, default_model, base_url_override): (&str, &str, Option<&str>) = match provider_idx {
         0 => ("openai",     "openai/gpt-4o",            None),
         1 => ("anthropic",  "anthropic/claude-3-5-sonnet-20241022", None),
         2 => ("openrouter", "openrouter/openai/gpt-4o",  None),
         3 => ("google",     "google/gemini-2.0-flash",   None),
         4 => ("groq",       "groq/llama-3.3-70b-versatile", None),
-        5 => ("local",      "local/llama3.1:8b",         Some("http://localhost:11434/v1")),
-        _ => ("openai",     "openai/gpt-4o",            None),
+        5 => ("pawlos",     "pawlos/qwen2.5:7b",         Some("http://localhost:11434/v1")),
+        _ => ("custom",     "custom/model",             None),
     };
+    
+    println!("{} ✓ Provider: {}", " ".dimmed(), providers[provider_idx].bright_cyan());
 
     let api_key = if provider_idx == 5 {
+        // Local Ollama doesn't need API key
         "ollama".to_string()
     } else if provider_idx == 6 {
-        Input::new().with_prompt("API key").interact_text()?
+        // Custom endpoint
+        Input::new()
+            .with_prompt("API key (leave empty if none)")
+            .allow_empty(true)
+            .interact_text()?
     } else {
         Password::new()
-            .with_prompt(format!("🔑 {provider_key} API key"))
+            .with_prompt(format!("{} API key", provider_key))
             .allow_empty_password(true)
             .interact()?
     };
@@ -88,31 +105,37 @@ pub async fn run_onboarding() -> Result<()> {
     };
 
     // Port
+    println!();
+    println!("{}", "Step 4/4: Web UI".bold().bright_blue());
+    println!("{}", "─".repeat(30).dimmed());
     let port: u16 = Input::new()
-        .with_prompt("🌐 Web UI port")
+        .with_prompt("Web UI port (0 to disable)")
         .default(9797_u16)
         .interact_text()?;
+    println!("{} ✓ Web UI port: {}", " ".dimmed(), port.to_string().bright_cyan());
 
-    // ── MCP servers ─────────────────────────────────────────────
-    println!("\n{}", "═".repeat(50).dimmed());
-    println!("{}", "  🔌 MCP Servers (optional)".bold());
-    println!("{}\n", "═".repeat(50).dimmed());
-
+    // MCP servers
+    println!();
+    println!("{}", "Optional: MCP Servers".bold().bright_blue());
+    println!("{}", "─".repeat(30).dimmed());
+    println!("{}", "Select MCP servers to enable (space=select, enter=confirm)".dimmed());
+    
     let mcp_options: Vec<&str> = AVAILABLE_MCPS.iter().map(|(_, desc)| *desc).collect();
     let mcp_indices = MultiSelect::new()
-        .with_prompt("Select MCPs to enable (space to select, enter to confirm)")
+        .with_prompt("MCP Servers")
         .items(&mcp_options)
         .interact()?;
 
     // Collect tokens/keys for selected MCPs
     let mut mcp_configs = HashMap::new();
-
+    
     for idx in &mcp_indices {
         let (name, _) = AVAILABLE_MCPS[*idx];
         match name {
             "github" => {
+                println!();
                 let token = Password::new()
-                    .with_prompt("  🔑 GitHub token (GITHUB_TOKEN)")
+                    .with_prompt("  GitHub token (GITHUB_TOKEN)")
                     .allow_empty_password(true)
                     .interact()?;
                 if !token.is_empty() {
@@ -124,8 +147,9 @@ pub async fn run_onboarding() -> Result<()> {
                 }
             }
             "brave_search" => {
+                println!();
                 let key = Password::new()
-                    .with_prompt("  🔑 Brave Search API key")
+                    .with_prompt("  Brave Search API key")
                     .allow_empty_password(true)
                     .interact()?;
                 if !key.is_empty() {
@@ -149,8 +173,9 @@ pub async fn run_onboarding() -> Result<()> {
                 }));
             }
             "git" => {
+                println!();
                 let root = Input::new()
-                    .with_prompt("  📁 Git repo path (default: current dir)")
+                    .with_prompt("  Git repo path (default: current dir)")
                     .default(".".to_string())
                     .interact_text()?;
                 mcp_configs.insert("git".to_string(), serde_json::json!({
@@ -159,8 +184,9 @@ pub async fn run_onboarding() -> Result<()> {
                 }));
             }
             "sqlite" => {
+                println!();
                 let db_path = Input::new()
-                    .with_prompt("  📁 SQLite database path")
+                    .with_prompt("  SQLite database path")
                     .default("./data.db".to_string())
                     .interact_text()?;
                 mcp_configs.insert("sqlite".to_string(), serde_json::json!({
@@ -185,7 +211,8 @@ pub async fn run_onboarding() -> Result<()> {
     }
 
     if !mcp_configs.is_empty() {
-        println!("\n{} {}", "✅".green(), format!("{} MCP servers configured", mcp_configs.len()).green());
+        println!();
+        println!("{} ✓ {} MCP servers configured", " ".dimmed(), mcp_configs.len().to_string().bright_cyan());
     }
 
     // Build config
@@ -216,30 +243,25 @@ pub async fn run_onboarding() -> Result<()> {
         mcp_servers: mcp_configs,
     };
 
+    // Save config (with backup if exists)
     cfg.save()?;
-    ui::success("Config saved");
+    println!();
+    println!("{}", "━".repeat(60).bright_cyan());
+    println!("{}", "  ✓ Setup Complete!".bold().bright_green());
+    println!("{}", "━".repeat(60).bright_cyan());
 
     // Bootstrap memory files
     MemoryStore::bootstrap_defaults(&agent_name, &user_name)?;
-    ui::success("Memory files initialised");
+    println!("{}", " ✓ Memory files initialized".dimmed());
 
     println!();
-    ui::dashboard::print_with_label("READY");
+    println!("{}", "pawlos is ready!".bold().bright_cyan());
     println!();
-    println!("{}{}{} is ready!{}",
-             colors::BRIGHT_CYAN, colors::BOLD, agent_name, colors::RESET);
-    println!("{}{}Run `pawlos` to start chatting{}",
-             colors::DIM, colors::BRIGHT_GREEN, colors::RESET);
+    println!("  {} Run {} to start chatting", ">".bright_cyan(), "pawlos".bold());
+    if port != 0 {
+        println!("  {} Web UI: {}", ">".bright_cyan(), format!("http://127.0.0.1:{}", port).bright_blue());
+    }
     println!();
 
     Ok(())
-}
-
-fn print_awakening_animation() {
-    // Show random funny startup message
-    print!("{}Initializing...{}", colors::DIM, quotes::random());
-    std::thread::sleep(std::time::Duration::from_millis(400));
-    ui::clear_line();
-    quotes::print_random();
-    std::thread::sleep(std::time::Duration::from_millis(200));
 }
