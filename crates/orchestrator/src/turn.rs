@@ -4,6 +4,7 @@ use uuid::Uuid;
 use pawlos_core::types::Message;
 use provider::registry::ProviderRegistry;
 use provider::types::{ChatRequest, LlmMessage};
+use provider::catalog::{ModelFallback, FallbackStrategy};
 use prompt::builder::{PromptBuilder, builtin_personality};
 use tools::executor::ToolExecutor;
 use crate::session::SessionManager;
@@ -29,35 +30,14 @@ pub async fn run_turn(
     let prompt_builder = PromptBuilder::new(agent_name);
     let messages = prompt_builder.build_messages(&session.messages)?;
 
-    let (provider_name, model_id) = ProviderRegistry::parse_model_spec(model_spec);
-    let client = provider.get_client(provider_name)
-        .ok_or_else(|| anyhow::anyhow!("Provider '{provider_name}' not configured"))?;
+    // Try the requested provider first, then fall back if it fails
+    let response = execute_with_fallback(
+        provider,
+        model_spec,
+        &messages,
+        allow_tools,
+    ).await?;
 
-    let tools = if allow_tools {
-        Some(
-            ToolExecutor::all_definitions()
-                .into_iter()
-                .map(|t| pawlos_core::types::ToolDefinition {
-                    name: t["name"].as_str().unwrap_or("").to_string(),
-                    description: t["description"].as_str().unwrap_or("").to_string(),
-                    parameters: t["parameters"].clone(),
-                })
-                .collect()
-        )
-    } else {
-        None
-    };
-
-    let req = ChatRequest {
-        model: model_id.to_string(),
-        messages,
-        tools,
-        stream: false,
-        temperature: Some(0.7),
-        max_tokens: Some(4096),
-    };
-
-    let mut response = client.chat(req).await?;
     let mut used_tools = false;
     let mut tool_iterations = 0;
     const MAX_TOOL_ITERS: u32 = 8;
@@ -96,21 +76,14 @@ pub async fn run_turn(
         let session = session_mgr.get(session_id).await
             .ok_or_else(|| anyhow::anyhow!("Session gone"))?;
         let messages = prompt_builder.build_messages(&session.messages)?;
-        let req = ChatRequest {
-            model: model_id.to_string(),
-            messages,
-            tools: if allow_tools {
-                Some(ToolExecutor::all_definitions().into_iter().map(|t| pawlos_core::types::ToolDefinition {
-                    name: t["name"].as_str().unwrap_or("").to_string(),
-                    description: t["description"].as_str().unwrap_or("").to_string(),
-                    parameters: t["parameters"].clone(),
-                }).collect())
-            } else { None },
-            stream: false,
-            temperature: Some(0.7),
-            max_tokens: Some(4096),
-        };
-        response = client.chat(req).await?;
+        
+        // Re-run with fallback logic
+        let response = execute_with_fallback(
+            provider,
+            model_spec,
+            &messages,
+            allow_tools,
+        ).await?;
     }
 
     // Persist final assistant message
@@ -118,4 +91,101 @@ pub async fn run_turn(
     session_mgr.push_message(session_id, assistant_msg).await?;
 
     Ok((response.content, used_tools))
+}
+
+/// Execute chat request with automatic fallback on failure
+async fn execute_with_fallback(
+    provider: &Arc<ProviderRegistry>,
+    model_spec: &str,
+    messages: &[LlmMessage],
+    allow_tools: bool,
+) -> Result<provider::types::ChatResponse> {
+    let (provider_name, model_id) = ProviderRegistry::parse_model_spec(model_spec);
+    
+    // Try the primary provider
+    match try_chat(provider, provider_name, model_id, messages, allow_tools).await {
+        Ok(response) => return Ok(response),
+        Err(e) => {
+            let error_str = e.to_string();
+            let strategy = ModelFallback::determine(&error_str);
+            
+            match strategy {
+                FallbackStrategy::LocalOllama | FallbackStrategy::NextProvider => {
+                    // Try local pawlos provider as fallback
+                    tracing::warn!("Provider '{}' failed: {}. Falling back to local...", provider_name, error_str);
+                    
+                    if let Some(_local_client) = provider.get_client("pawlos") {
+                        // Get recommended local model based on device
+                        let local_model = get_local_model_fallback();
+                        
+                        match try_chat(provider, "pawlos", &local_model, messages, allow_tools).await {
+                            Ok(response) => {
+                                tracing::info!("Successfully fell back to local model: {}", local_model);
+                                return Ok(response);
+                            }
+                            Err(local_err) => {
+                                tracing::error!("Local fallback also failed: {}", local_err);
+                            }
+                        }
+                    }
+                }
+                FallbackStrategy::None => {}
+            }
+            
+            // If we get here, all fallbacks failed - return original error
+            Err(e)
+        }
+    }
+}
+
+/// Try a chat request with a specific provider/model
+async fn try_chat(
+    provider: &Arc<ProviderRegistry>,
+    provider_name: &str,
+    model_id: &str,
+    messages: &[LlmMessage],
+    allow_tools: bool,
+) -> Result<provider::types::ChatResponse> {
+    let client = provider.get_client(provider_name)
+        .ok_or_else(|| anyhow::anyhow!("Provider '{}' not configured", provider_name))?;
+
+    let tools = if allow_tools {
+        Some(
+            ToolExecutor::all_definitions()
+                .into_iter()
+                .map(|t| pawlos_core::types::ToolDefinition {
+                    name: t["name"].as_str().unwrap_or("").to_string(),
+                    description: t["description"].as_str().unwrap_or("").to_string(),
+                    parameters: t["parameters"].clone(),
+                })
+                .collect()
+        )
+    } else {
+        None
+    };
+
+    let req = ChatRequest {
+        model: model_id.to_string(),
+        messages: messages.to_vec(),
+        tools,
+        stream: false,
+        temperature: Some(0.7),
+        max_tokens: Some(4096),
+    };
+
+    client.chat(req).await
+}
+
+/// Get a fallback local model - tries to detect best one for device
+fn get_local_model_fallback() -> String {
+    use provider::LocalModelDetector;
+    
+    // Detect device and get recommended model
+    let caps = LocalModelDetector::detect_capabilities();
+    let model = LocalModelDetector::recommended_local_model(&caps);
+    
+    tracing::info!("Device detected: {}GB RAM, {}GB GPU VRAM, {} cores -> using model: {}", 
+        caps.ram_gb, caps.gpu_vram_gb, caps.cpu_cores, model);
+    
+    model
 }

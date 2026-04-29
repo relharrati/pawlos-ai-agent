@@ -221,47 +221,12 @@ impl LocalModelDetector {
             .map(|p| p.get())
             .unwrap_or(4);
 
-        // Estimate RAM (this is a rough estimate)
-        #[cfg(windows)]
-        {
-            // On Windows, try to get total physical memory
-            use std::mem::MaybeUninit;
-            #[link(name = "kernel32")]
-            extern "system" {
-                fn GetGlobalMemoryStatusEx(lpBuffer: *mut MEMORYSTATUSEX) -> i32;
-            }
-            #[repr(C)]
-            struct MEMORYSTATUSEX {
-                dwLength: u32,
-                dwMemoryLoad: u32,
-                ullTotalPhys: u64,
-                ullAvailPhys: u64,
-                ullTotalPageFile: u64,
-                ullAvailPageFile: u64,
-                ullTotalVirtual: u64,
-                ullAvailVirtual: u64,
-                ullAvailExtendedVirtual: u64,
-            }
-            let mut mem = MEMORYSTATUSEX { 
-                dwLength: std::mem::size_of::<MEMORYSTATUSEX>() as u32,
-                dwMemoryLoad: 0,
-                ullTotalPhys: 0,
-                ullAvailPhys: 0,
-                ullTotalPageFile: 0,
-                ullAvailPageFile: 0,
-                ullTotalVirtual: 0,
-                ullAvailVirtual: 0,
-                ullAvailExtendedVirtual: 0,
-            };
-            if unsafe { GetGlobalMemoryStatusEx(&mut mem) } != 0 {
-                caps.ram_gb = mem.ullTotalPhys as f64 / 1_073_741_824.0;
-            }
-        }
-        #[cfg(not(windows))]
-        {
-            // Simplified fallback - assume typical values
-            caps.ram_gb = 16.0; // Default assumption
-        }
+        // Estimate RAM using sysinfo crate (already available)
+        // Use sysinfo to get accurate system memory info
+        use sysinfo::System;
+        let mut sys = System::new_all();
+        sys.refresh_all();
+        caps.ram_gb = sys.total_memory() as f64 / 1_073_741_824.0;
 
         // GPU detection (simplified - would need platform-specific code for real detection)
         // For now, we'll use RAM as a proxy - systems with more RAM often have dedicated GPU
