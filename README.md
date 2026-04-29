@@ -1,12 +1,34 @@
 # pawlos
 
-> Persistent, self-evolving AI agent — Rust core, TypeScript web UI, SQLite memory.
+> Persistent, self-evolving AI agent — Rust core, TypeScript web UI, SQLite memory
 
-## Quick Start
+## Install
 
+### 🖥️ Windows (PowerShell)
+```powershell
+iwr -useb https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.ps1 | iex
+```
+
+### 🍎 Linux/macOS (curl)
+```bash
+curl -sSL https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.sh | bash
+```
+
+### 📦 npm/npx
+```bash
+npx pawlos-ai
+```
+
+### 🛠️ Build from source (requires Rust)
 ```bash
 cargo build --release -p cli
 ./target/release/pawlos
+```
+
+### First Run
+```bash
+pawlos          # Start the agent
+pawlos onboard  # Run first-time setup
 ```
 
 ## Directory Structure

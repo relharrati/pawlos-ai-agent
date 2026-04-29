@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────
 #  pawlos — one-line installer
-#  Usage: curl -sSL https://get.pawlos.ai | bash
+#  Usage: curl -sSL https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.sh | bash
+#  Or:    npx pawlos-ai
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
-REPO="https://github.com/pawlos-ai/pawlos"   # adjust when published
+REPO="https://github.com/relharrati/pawlos-ai-agent"
 BIN_NAME="pawlos"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 CONFIG_DIR="$HOME/.pawlos"
