@@ -44,9 +44,38 @@ pub struct ModelsSection {
 
 impl Default for ModelsSection {
     fn default() -> Self {
+        let mut providers = HashMap::new();
+        
+        // Add pawlos local provider (default - runs local Ollama models)
+        providers.insert("pawlos".to_string(), ProviderConfig {
+            api_key: None,
+            base_url: Some("http://localhost:11434/v1".to_string()),
+            default_model: Some("qwen2.5:7b".to_string()),
+            models: Some(vec![
+                "qwen2.5:14b".to_string(),
+                "qwen2.5:7b".to_string(),
+                "llama3.1:8b".to_string(),
+                "llama3.1:70b".to_string(),
+                "mistral:7b".to_string(),
+                "phi4:14b".to_string(),
+                "codellama:7b".to_string(),
+                "phi3:14b".to_string(),
+                "gemma2:9b".to_string(),
+                "phi3:3.8b".to_string(),
+            ]),
+        });
+        
+        // Add openrouter as secondary (free tier available)
+        providers.insert("openrouter".to_string(), ProviderConfig {
+            api_key: None, // User needs to set OPENROUTER_API_KEY
+            base_url: Some("https://openrouter.ai/api/v1".to_string()),
+            default_model: Some("moonshotai/kimi-k2.6".to_string()),
+            models: None,
+        });
+        
         Self {
-            default: "openai/gpt-4o-mini".into(), // SML fallback - faster & cheaper
-            providers: HashMap::new(),
+            default: "pawlos/qwen2.5:7b".to_string(), // Local by default - fast & free
+            providers,
         }
     }
 }

@@ -42,12 +42,23 @@ impl ProviderRegistry {
             clients.insert(name.clone(), Arc::new(client));
         }
 
-        // Always add a local/Ollama client if not already defined
+        // Add pawlos local provider (Ollama) if not already defined
+        // pawlos is the primary local model provider
+        if !clients.contains_key("pawlos") {
+            let client = OpenAiCompatClient::new(
+                "pawlos".to_string(),
+                "http://localhost:11434/v1".to_string(),
+                "ollama".to_string(),
+            );
+            clients.insert("pawlos".into(), Arc::new(client));
+        }
+
+        // Also add "local" as alias for backwards compatibility
         if !clients.contains_key("local") {
             let client = OpenAiCompatClient::new(
-                "local",
-                "http://localhost:11434/v1",
-                "ollama",
+                "local".to_string(),
+                "http://localhost:11434/v1".to_string(),
+                "ollama".to_string(),
             );
             clients.insert("local".into(), Arc::new(client));
         }
