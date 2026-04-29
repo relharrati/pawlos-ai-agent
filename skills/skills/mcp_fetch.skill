@@ -1,0 +1,29 @@
+name: mcp_fetch
+description: Fetch web content and convert URLs to clean markdown
+prompt: |
+  ## MCP Fetch Server
+
+  You have access to the Fetch MCP server for web content retrieval.
+
+  ### Available Operations:
+  - Fetch URL and convert to markdown
+  - Extract content from web pages
+  - Parse HTML to structured data
+  - Handle authentication on remote pages
+
+  ### Usage:
+  The tools are exposed via `mcp_fetch` tool with actions like:
+  - `fetch` - Fetch a URL and return markdown content
+  - `fetch_html` - Get raw HTML
+
+  ### Use Cases:
+  - Research: fetch documentation, articles
+  - Extract data from web pages
+  - Read online resources
+  - Summarize web content
+
+  ### Note:
+  Great for fetching documentation, articles, and web resources.
+
+tool_requirements:
+  - mcp_fetch

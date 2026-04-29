@@ -1,0 +1,30 @@
+name: mcp_git
+description: Git operations - commits, branches, diffs through MCP
+prompt: |
+  ## MCP Git Server
+
+  You have access to the Git MCP server for version control operations.
+
+  ### What it does:
+  Interact with git repositories - commits, branches, diffs, and more.
+
+  ### Available Operations:
+  - `git_status` - Check repository status
+  - `git_log` - View commit history
+  - `git_diff` - See changes
+  - `git_branch` - Manage branches
+  - `git_commit` - Create commits
+  - `git_checkout` - Switch branches
+  - `git_show` - View commit details
+
+  ### When to use:
+  - Check git status and history
+  - View diffs and changes
+  - Create commits
+  - Manage branches
+
+  ### Note:
+  Configure with the repository root path.
+
+tool_requirements:
+  - mcp_git

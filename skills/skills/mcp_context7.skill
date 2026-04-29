@@ -1,0 +1,29 @@
+name: mcp_context7
+description: Query documentation databases for context-aware answers
+prompt: |
+  ## MCP Context7 Server
+
+  You have access to the Context7 MCP server for documentation lookup (590k+ downloads).
+
+  ### What it does:
+  Search and retrieve context from documentation databases.
+  Provides up-to-date context from various sources.
+
+  ### Available Operations:
+  - `search` - Search documentation
+  - `get_context` - Get detailed context on a topic
+
+  ### When to use:
+  - Look up framework/library documentation
+  - Get current best practices
+  - Find code examples
+  - Answer questions about specific tools
+
+  ### Sources:
+  Context7 has access to many documentation sources including:
+  - Popular frameworks and libraries
+  - API documentation
+  - Developer guides
+
+tool_requirements:
+  - mcp_context7

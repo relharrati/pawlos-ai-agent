@@ -1,0 +1,31 @@
+name: mcp_playwright
+description: Browser automation with Playwright through MCP server
+prompt: |
+  ## MCP Playwright Server
+
+  You have access to the Playwright MCP server for browser automation (590k+ downloads).
+
+  ### What it does:
+  Control a headless browser for web automation, testing, and scraping.
+
+  ### Available Operations:
+  - `browser_navigate` - Go to a URL
+  - `browser_click` - Click elements
+  - `browser_type` - Type into input fields
+  - `browser_screenshot` - Take screenshots
+  - `browser_evaluate` - Run JavaScript
+  - `browser_wait` - Wait for elements
+
+  ### When to use:
+  - Web scraping
+  - Form automation
+  - Testing web applications
+  - Taking screenshots
+  - Interactive web browsing
+
+  ### Note:
+  This is similar to the built-in browser tool but via MCP.
+  Use whichever is available.
+
+tool_requirements:
+  - mcp_playwright

@@ -1,0 +1,35 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "pawlos"
+path = "src/main.rs"
+
+[dependencies]
+core = { path = "../core" }
+memory = { path = "../memory" }
+orchestrator = { path = "../orchestrator" }
+provider = { path = "../provider" }
+prompt = { path = "../prompt" }
+tools = { path = "../tools" }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+clap = { workspace = true }
+dirs = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+crossterm = { workspace = true }
+indicatif = { workspace = true }
+colored = { workspace = true }
+dialoguer = { workspace = true }
+reqwest = { workspace = true }
+futures = { workspace = true }
+bytes = { workspace = true }

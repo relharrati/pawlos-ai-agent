@@ -1,0 +1,28 @@
+name: mcp_sequential_thinking
+description: Use structured sequential thinking for complex reasoning
+prompt: |
+  ## MCP Sequential Thinking Server
+
+  You have access to the Sequential Thinking MCP server - one of the most popular MCPs with 5,550+ uses.
+
+  ### What it does:
+  Enables structured, step-by-step reasoning for complex problems.
+  Breaks down complex tasks into manageable steps with reflection.
+
+  ### Available Operations:
+  - `think` - Use sequential thinking to reason through a problem
+  - Provides thought traces and allows refinement
+
+  ### When to use:
+  - Complex problem solving
+  - Multi-step reasoning
+  - When you need to think through a problem systematically
+  - Planning complex tasks
+  - Debugging tricky issues
+
+  ### How it works:
+  The thinking tool maintains context and allows you to build on previous thoughts,
+  reflect on your reasoning, and iterate until you reach a solution.
+
+tool_requirements:
+  - mcp_sequential_thinking

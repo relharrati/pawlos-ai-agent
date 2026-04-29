@@ -1,0 +1,29 @@
+name: mcp_memory
+description: Knowledge graph memory for persistent context and semantic recall
+prompt: |
+  ## MCP Memory / Knowledge Graph Server
+
+  You have access to the Knowledge Graph Memory MCP server for persistent memory.
+
+  ### What it does:
+  Stores and retrieves information in a knowledge graph structure.
+  Enables semantic recall of past conversations and facts.
+
+  ### Available Operations:
+  - `put` - Store information in memory
+  - `search` - Query the memory/knowledge graph
+  - `list` - List stored memories
+  - `read` - Retrieve specific memory
+
+  ### When to use:
+  - Remembering user preferences
+  - Maintaining context across sessions
+  - Building a knowledge base
+  - Semantic recall of past information
+
+  ### Note:
+  This is different from your main memory system - it's an additional
+  knowledge graph for structured information storage.
+
+tool_requirements:
+  - mcp_memory

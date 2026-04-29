@@ -1,0 +1,35 @@
+name: browser_automation
+description: Use browser automation to interact with websites - scrape data, fill forms, click elements, take screenshots
+prompt: |
+  ## Browser Automation Skill
+
+  You have access to a headless browser controlled via the `browser` tool.
+
+  ### Available Actions:
+  - **navigate**: Go to a URL
+  - **click**: Click an element by selector or text
+  - **input**: Fill an input field with text
+  - **get_content**: Extract page content (optionally with CSS selector)
+  - **screenshot**: Take a screenshot
+  - **evaluate**: Run custom JavaScript
+  - **wait_for**: Wait for element to appear
+  - **go_back / go_forward**: Navigate history
+  - **scroll**: Scroll up/down/left/right
+
+  ### Usage Examples:
+  ```
+  browser action: navigate, url: "https://example.com"
+  browser action: click, selector: "button.submit"
+  browser action: input, selector: "#search", text: "my search query"
+  browser action: get_content, selector: ".article-content"
+  browser action: screenshot, path: "screenshot.png"
+  ```
+
+  ### Tips:
+  - Use CSS selectors like `#id`, `.class`, `tagname`
+  - Use text content like "Submit Button" to click by text
+  - Take screenshots to debug what's on the page
+  - For complex tasks, break into multiple browser calls
+
+tool_requirements:
+  - browser

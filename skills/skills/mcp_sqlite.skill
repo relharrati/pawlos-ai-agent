@@ -1,0 +1,26 @@
+name: mcp_sqlite
+description: Query and manage SQLite databases through MCP
+prompt: |
+  ## MCP SQLite Server
+
+  You have access to the SQLite MCP server for database operations.
+
+  ### What it does:
+  Execute SQL queries and manage SQLite databases.
+
+  ### Available Operations:
+  - `query` - Run SQL SELECT queries
+  - `execute` - Run INSERT, UPDATE, DELETE
+  - `list_tables` - List tables in database
+  - `describe_table` - Get table schema
+
+  ### When to use:
+  - Query local SQLite databases
+  - Read/write data to local DBs
+  - Database inspection and exploration
+
+  ### Note:
+  Provide the database path when configuring the server.
+
+tool_requirements:
+  - mcp_sqlite

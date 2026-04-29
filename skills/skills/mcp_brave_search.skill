@@ -1,0 +1,25 @@
+name: mcp_brave_search
+description: Web search using Brave Search API through MCP
+prompt: |
+  ## MCP Brave Search Server
+
+  You have access to the Brave Search MCP server for web search.
+
+  ### What it does:
+  Perform web searches and retrieve results.
+
+  ### Available Operations:
+  - `search` - Search the web
+  - Get search results with titles, descriptions, URLs
+
+  ### When to use:
+  - Look up current information
+  - Find resources and references
+  - Research topics
+  - Get up-to-date data
+
+  ### Note:
+  Requires BRAVE_API_KEY environment variable.
+
+tool_requirements:
+  - mcp_brave_search

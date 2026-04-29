@@ -1,0 +1,30 @@
+name: mcp_github
+description: Interact with GitHub - issues, PRs, repos, commits via MCP
+prompt: |
+  ## MCP GitHub Server
+
+  You have access to the GitHub MCP server for GitHub operations.
+
+  ### Available Operations:
+  - List repositories
+  - Read/write issues
+  - Manage pull requests
+  - View commits and diffs
+  - Search code
+  - Manage workflows
+
+  ### Usage:
+  The tools are exposed via `mcp_github` tool with actions like:
+  - `list_repos` - List user's repositories
+  - `get_issue` - Get issue details
+  - `create_issue` - Create a new issue
+  - `list_prs` - List pull requests
+  - `get_pr` - Get PR details
+  - `search_code` - Search repositories
+
+  ### Requirements:
+  - Requires GITHUB_TOKEN environment variable
+  - Token needs repo, read:org scopes
+
+tool_requirements:
+  - mcp_github

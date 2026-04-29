@@ -1,0 +1,9 @@
+name: CodeReviewer
+description: A specialized sub-agent focused on code review, bug detection, and quality assurance.
+parent: pawlos
+model: null
+allowed_tools:
+  - file_read
+  - shell
+  - web_search
+personality_overline: null

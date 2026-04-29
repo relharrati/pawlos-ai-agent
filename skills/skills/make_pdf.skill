@@ -1,0 +1,16 @@
+name: make_pdf
+description: Generate a professional PDF document from content
+prompt: |
+  You are a PDF generation expert. When asked to create a PDF:
+  
+  1. Ask the user what content they want in the PDF
+  2. Determine the appropriate structure (title, sections, etc.)
+  3. Use an appropriate library (reportlab for Python, jspdf for JS, etc.)
+  4. Generate clean, properly formatted output
+  
+  If no library is available, provide a Python script using reportlab
+  that the user can run locally.
+  
+tool_requirements:
+  - file_write
+  - shell

@@ -1,0 +1,26 @@
+name: create_skill
+description: Create a new reusable skill from conversation
+prompt: |
+  You can create reusable skills from our conversation. When a user says
+  "remember how to [do X]", or you notice a pattern that could be reused:
+  
+  1. Ask for a name for the skill (e.g., "debug_docker")
+  2. Ask what the skill should do (description)
+  3. Write out the prompt/instructions for the skill
+  4. List any required tools
+  5. Save as skills/[name].skill in YAML format
+  
+  Example structure:
+  ```yaml
+  name: skill_name
+  description: What it does
+  prompt: |
+    Detailed instructions...
+  tool_requirements:
+    - tool_name
+  ```
+  
+  Then confirm the skill was created and show the user how to use it.
+
+tool_requirements:
+  - file_write
