@@ -249,12 +249,21 @@ impl Config {
         Ok(cfg)
     }
 
-    /// Persist config to disk
+    /// Persist config to disk with automatic backup
     pub fn save(&self) -> Result<()> {
         let path = Self::config_path();
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
+        
+        // Create backup if config already exists
+        if path.exists() {
+            let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
+            let backup_path = path.with_extension(format!("yaml.backup-{}", timestamp));
+            std::fs::copy(&path, &backup_path).ok(); // Ignore backup errors
+            tracing::info!("Config backup created: {}", backup_path.display());
+        }
+        
         let yaml = serde_yaml::to_string(self)
             .map_err(|e| anyhow::anyhow!("Config serialization error: {e}"))?;
         std::fs::write(&path, yaml)?;

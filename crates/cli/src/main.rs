@@ -2,6 +2,8 @@ mod onboard;
 mod repl;
 mod commands;
 mod ui;
+#[cfg(unix)]
+mod opentui_welcome;
 
 // Re-export for commands module
 pub use self::commands::*;
@@ -17,6 +19,8 @@ use memory::store::MemoryStore;
 use orchestrator::{SessionManager, Heartbeat, AgentRegistry, WebServer};
 use orchestrator::web_server::AppState;
 use provider::registry::ProviderRegistry;
+use crate::ui::colors;
+use colored::Colorize;
 
 #[derive(Parser)]
 #[command(
@@ -120,6 +124,14 @@ async fn main() -> Result<()> {
                 onboard::run_onboarding().await?;
             }
             let cfg = Config::load()?;
+            
+            // Mention gateway start prominently
+            println!();
+            println!("{}{}", colors::DIM, "═".repeat(60));
+            println!("{}  🚀 Starting pawlos agent...", colors::BRIGHT_CYAN);
+            println!("{}{}", colors::DIM, "═".repeat(60));
+            println!();
+            
             run_services(&cfg, true).await?;
         }
     }
@@ -173,6 +185,17 @@ async fn run_services(cfg: &Config, run_repl: bool) -> Result<()> {
     }
 
     if run_repl {
+        // Show opentui welcome (Unix-only)
+        #[cfg(unix)]
+        {
+            let gateway_url = if cfg.server.port != 0 {
+                Some(format!("http://{}:{}", cfg.server.host, cfg.server.port))
+            } else {
+                None
+            };
+            opentui_welcome::run_opentui_welcome(&agent_name, gateway_url.as_deref()).await;
+        }
+        
         repl::run_repl(
             &agent_name,
             session_mgr,

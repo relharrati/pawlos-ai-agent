@@ -33,3 +33,6 @@ dialoguer = { workspace = true }
 reqwest = { workspace = true }
 futures = { workspace = true }
 bytes = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+opentui_rust = { version = "0.2" }
