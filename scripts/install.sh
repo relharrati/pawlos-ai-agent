@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────
 #  pawlos — one-line installer
-#  Usage: curl -sSL https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.sh | bash
-#  Or:    npx pawlos-ai
+#  Usage: curl -sSL https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/master/scripts/install.sh | bash
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -12,39 +11,76 @@ BIN_NAME="pawlos"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 CONFIG_DIR="$HOME/.pawlos"
 
-# ── helpers ────────────────────────────────────────────────────
-info()  { printf '\033[1;36m[pawlos]\033[0m %s\n' "$*"; }
-ok()    { printf '\033[1;32m[  ok  ]\033[0m %s\n' "$*"; }
-err()   { printf '\033[1;31m[ err  ]\033[0m %s\n' "$*" >&2; exit 1; }
+# Colors (cyan/purple theme)
+BOLD='\033[1m'
+ACCENT='\033[38;2;0;229;204m'     # cyan
+ACCENT_BRIGHT='\033[38;2;0;255;255m'  # bright cyan
+INFO='\033[38;2;136;146;176m'     # muted blue
+SUCCESS='\033[38;2;0;229;204m'    # cyan
+WARN='\033[38;2;255;176;32m'      # amber
+ERROR='\033[38;2;230;57;70m'       # red
+MUTED='\033[38;2;90;100;128m'    # gray
+NC='\033[0m' # No Color
 
-# ── detect OS and arch ────────────────────────────────────────
-detect_target() {
-    local os arch
-    os="$(uname -s)"
-    arch="$(uname -m)"
+# Random taglines
+TAGLINES=(
+    "Ready to assist"
+    "It compiles! Ship it!"
+    "Powered by coffee and ambition"
+    "AI at your service"
+    "Now with 20% more intelligence"
+    "Click clack goes the code"
+    "Don't look at the logs"
+    "sudo make me a sandwich"
+    "rm -rf /problems"
+    "404: Boredom not found"
+    "I for one welcome our new robot overlords"
+    "It's not a bug, it's a feature"
+    "Works on my machine"
+    "git push --force"
+    "sudo rm -rf /tmp"
+    "Bracket balanced, ship it!"
+    "Your AI bestie"
+    "ur buddy"
+)
 
-    case "$os" in
-        Linux)   os="linux" ;;
-        Darwin)  os="darwin" ;;
-        CYGWIN*|MINGW*|MSYS*) os="windows" ;;
-        *) err "Unsupported OS: $os" ;;
-    esac
+TAGLINE="${TAGLINES[$((RANDOM % ${#TAGLINES[@]}))]}"
 
-    case "$arch" in
-        x86_64|amd64) arch="x86_64" ;;
-        aarch64|arm64) arch="aarch64" ;;
-        *) err "Unsupported architecture: $arch" ;;
-    esac
-
-    echo "${os}-${arch}"
+print_banner() {
+    echo -e "${ACCENT}${BOLD}"
+    cat <<'EOF'
+  _____   __          ___           ____   _____ 
+ |  __ \ /\ \        / / |         / __ \ / ____|
+ | |__) /  \ \  /\  / /| |  ______| |  | | (___  
+ |  ___/ /\ \ \/  \/ / | | |______| |  | |\___ \ 
+ | |  / ____ \  /\  /  | |____    | |__| |____) |
+ |_| /_/    \_\/  \/   |______|    \____/|_____/ 
+EOF
+    echo -e "${NC}${INFO}  ${TAGLINE}${NC}"
+    echo ""
 }
 
-# ── ensure curl is available ───────────────────────────────────────────────────
-ensure_curl() {
+# UI helpers
+ui_info()  { echo -e "${MUTED}·${NC} $*"; }
+ui_warn()  { echo -e "${WARN}!${NC} $*"; }
+ui_success() { echo -e "${SUCCESS}✓${NC} $*"; }
+ui_error() { echo -e "${ERROR}✗${NC} $*" >&2; exit 1; }
+
+# Detect OS
+detect_os() {
+    case "$(uname -s)" in
+        Linux) echo "linux" ;;
+        Darwin) echo "macos" ;;
+        *) echo "unknown" ;;
+    esac
+}
+
+# Ensure curl/wget
+ensure_downloader() {
     if command -v curl &>/dev/null; then return 0; fi
     if command -v wget &>/dev/null; then return 0; fi
     
-    info "curl/wget not found, trying to install..."
+    ui_info "curl/wget not found, attempting to install..."
     
     if command -v apt-get &>/dev/null; then
         apt-get update -qq && apt-get install -y -qq curl wget 2>/dev/null && return 0
@@ -54,147 +90,123 @@ ensure_curl() {
         apk add curl wget 2>/dev/null && return 0
     fi
     
-    err "curl or wget required. Please install manually."
+    ui_error "curl or wget required. Install manually: sudo apt install curl wget"
 }
 
-# ── download binary or build from source ───────────────────────────────────────────
-download_binary() {
+# Download binary or build from source
+download_or_build() {
     local target="$1"
-    local version="${2:-latest}"
     local ext=""
-    [[ "$target" == windows* ]] && ext=".exe"
-
-    local url="${REPO}/releases/download/${version}/${BIN_NAME}-${target}${ext}"
+    [[ "$(detect_os)" == "mingw"* ]] && ext=".exe" || [[ "$(uname -s)" == "Windows" ]] && ext=".exe"
+    
+    local url="${REPO}/releases/download/latest/${BIN_NAME}-${target}${ext}"
     local dest="${INSTALL_DIR}/${BIN_NAME}${ext}"
-
+    
     mkdir -p "$INSTALL_DIR"
-
-    # Try to download pre-built binary first
-    ensure_curl
+    ensure_downloader
     
-    info "Trying to download pawlos for ${target}..."
-    if command -v curl &>/dev/null; then
-        if curl -sfL "$url" -o "$dest" 2>/dev/null; then
-            ok "Downloaded pre-built binary"
-            return 0
-        fi
+    ui_info "Trying to download pre-built binary..."
+    if curl -sfL "$url" -o "$dest" 2>/dev/null; then
+        chmod +x "$dest"
+        ui_success "Downloaded binary"
+        return 0
     fi
-
-    # If download fails, build from source
-    info "No pre-built binary found. Building from source..."
+    
+    # No release found - build from source
+    ui_warn "No pre-built binary found"
+    ui_info "Building from source (requires Rust)..."
+    
     if ! command -v cargo &>/dev/null; then
-        err "cargo not found. Install Rust: https://rustup.rs"
+        ui_error "Cargo not found. Install Rust: https://rustup.rs"
     fi
-
-    local temp_dir=$(mktemp -d)
-    cd "$temp_dir"
-    git clone --depth 1 --branch "${BRANCH:-master}" "${REPO}.git" pawlos_src 2>/dev/null || \
+    
+    local tmp=$(mktemp -d)
+    cd "$tmp"
+    git clone --depth 1 -b "${BRANCH}" "${REPO}.git" pawlos_src 2>/dev/null || \
     git clone --depth 1 "${REPO}.git" pawlos_src
+    
     cd pawlos_src
-    cargo build --release -p cli --quiet
+    cargo build --release -p cli 2>&1 | tail -5
+    
     cp "target/release/${BIN_NAME}${ext}" "$dest"
-    cd /
-    rm -rf "$temp_dir"
-    ok "Built from source"
-}
-        err "Neither curl nor wget found. Please install one."
-    fi
-
     chmod +x "$dest"
-    ok "Binary installed to $dest"
+    cd / && rm -rf "$tmp"
+    
+    ui_success "Built from source"
 }
 
-# ── ensure install dir is on PATH ─────────────────────────────
+# Ensure PATH
 ensure_path() {
-    case ":$PATH:" in
-        *":$INSTALL_DIR:"*) ;; # already on PATH
-        *)
-            local shell_rc=""
-            if [[ -n "${BASH_VERSION:-}" ]]; then
-                shell_rc="$HOME/.bashrc"
-            elif [[ -n "${ZSH_VERSION:-}" ]]; then
-                shell_rc="$HOME/.zshrc"
-            fi
-
-            if [[ -n "$shell_rc" ]]; then
-                echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$shell_rc"
-                info "Added $INSTALL_DIR to PATH in $shell_rc"
-                info "Run: source $shell_rc"
-            else
-                info "Add this to your shell profile: export PATH=\"$INSTALL_DIR:\$PATH\""
-            fi
-            ;;
-    esac
+    if [[ ":$PATH:" == *":$INSTALL_DIR:"* ]]; then
+        return 0
+    fi
+    
+    local shell_rc=""
+    [[ -n "${BASH_VERSION:-}" ]] && shell_rc="$HOME/.bashrc"
+    [[ -n "${ZSH_VERSION:-}" ]] && shell_rc="$HOME/.zshrc"
+    
+    if [[ -n "$shell_rc" ]]; then
+        if ! grep -q "$INSTALL_DIR" "$shell_rc" 2>/dev/null; then
+            echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$shell_rc"
+            ui_info "Added to PATH in $shell_rc"
+            ui_info "Run: source $shell_rc"
+        fi
+    else
+        ui_info "Add to PATH: export PATH=\"$INSTALL_DIR:\$PATH\""
+    fi
 }
 
-# ── bootstrap config directory ────────────────────────────────
+# Bootstrap config dirs
 bootstrap_dirs() {
-    mkdir -p \
-        "$CONFIG_DIR/memories" \
-        "$CONFIG_DIR/agents" \
-        "$CONFIG_DIR/skills" \
-        "$CONFIG_DIR/logs" \
-        "$CONFIG_DIR/vector_db" \
-        "$CONFIG_DIR/plugins" \
-        "$CONFIG_DIR/mcp_servers"
-    ok "Config directory: $CONFIG_DIR"
+    mkdir -p "$CONFIG_DIR/memories" "$CONFIG_DIR/agents" "$CONFIG_DIR/skills" \
+           "$CONFIG_DIR/logs" "$CONFIG_DIR/vector_db" "$CONFIG_DIR/plugins" "$CONFIG_DIR/mcp_servers"
 }
 
-# ── install Python dependencies for MCP servers ────────────────
+# Install MCP deps
 install_mcp_deps() {
-    info "Installing MCP server dependencies..."
+    ui_info "Installing MCP dependencies..."
     
-    # Core MCP packages
-    pip install --quiet \
-        mcp \
-        httpx \
-        uvicorn \
-        2>/dev/null || true
+    if command -v npm &>/dev/null; then
+        npm install -g @modelcontextprotocol/server-filesystem \
+            @modelcontextprotocol/server-fetch \
+            @modelcontextprotocol/server-github \
+            @modelcontextprotocol/server-brave-search 2>/dev/null || true
+    fi
     
-    # Common MCP servers
-    pip install --quiet \
-        @modelcontextprotocol/server-filesystem \
-        @modelcontextprotocol/server-fetch \
-        @modelcontextprotocol/server-brave-search \
-        @modelcontextprotocol/server-memory \
-        @modelcontextprotocol/server-github \
-        2>/dev/null || true
-    
-    # Node packages for MCP (via npx)
+    # npx versions for MCP
     command -v npx &>/dev/null && {
         npx -y @modelcontextprotocol/server-filesystem --help >/dev/null 2>&1 || true
-        npx -y @modelcontextprotocol/server-github --help >/dev/null 2>&1 || true
     } || true
     
-    ok "MCP dependencies installed"
+    ui_success "MCP dependencies ready"
 }
 
-# ── main ──────────────────────────────────────────────────────
+# Main
 main() {
-    local target version
-    target="$(detect_target)"
-    version="${PAWLOS_VERSION:-latest}"
-
-    info "Installing pawlos (target: $target, version: $version)"
-
-    # If building from source (dev mode)
-    if [[ "${BUILD_FROM_SOURCE:-0}" == "1" ]]; then
-        info "Building from source..."
-        if ! command -v cargo &>/dev/null; then
-            err "cargo not found. Install Rust: https://rustup.rs"
-        fi
-        cargo install --path crates/pawlos-cli --locked
-        ok "Built and installed via cargo"
-    else
-        download_binary "$target" "$version"
-    fi
-
-    bootstrap_dirs
+    print_banner
+    
+    ui_info "Detected: $(detect_os)"
+    
+    # Install
+    download_or_build "$(uname -m)"
+    
+    # PATH
     ensure_path
+    
+    # Config
+    bootstrap_dirs
+    
+    # MCP
     install_mcp_deps
-
+    
+    # Done
     echo ""
-    ok "pawlos installed! Run: pawlos"
+    echo -e "${ACCENT}     P A W L - O S   u r   a g e n t   |   b u d d y${NC}"
+    echo ""
+    ui_success "pawlos installed!"
+    echo ""
+    ui_info "Run: pawlos"
+    ui_info "Or:  pawlos onboard (first-time setup)"
     echo ""
 }
 

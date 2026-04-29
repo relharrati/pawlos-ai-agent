@@ -1,37 +1,61 @@
 # pawlos Windows Installer
-# Run: iwr -useb https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/main/scripts/install.ps1 | iex
+# Run: iwr -useb https://raw.githubusercontent.com/relharrati/pawlos-ai-agent/master/scripts/install.ps1 | iex
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
 $ErrorActionPreference = "Stop"
 
-# Config
 $REPO = "relharrati/pawlos-ai-agent"
 $BRANCH = "master"
 $BIN_NAME = "pawlos"
 $INSTALL_DIR = "$env:LOCALAPPDATA\Programs\pawlos"
 $CONFIG_DIR = "$env:USERPROFILE\.pawlos"
 
-function Write-Info($msg) { Write-Host "[pawlos] $msg" -ForegroundColor Cyan }
-function Write-Ok($msg)   { Write-Host "[  ok  ] $msg" -ForegroundColor Green }
-function Write-Err($msg)  { Write-Host "[ err  ] $msg" -ForegroundColor Red; exit 1 }
+# Colors (cyan/purple theme)
+$ACCENT = "Cyan"
+$INFO = "DarkGray"
+$SUCCESS = "Green"
+$WARN = "Yellow"
+$ERROR = "Red"
+$BOLD = "Bold"
 
+# Random taglines
+$TAGLINES = @(
+    "Ready to assist",
+    "It compiles! Ship it!",
+    "Powered by coffee and ambition",
+    "AI at your service",
+    "Now with 20% more intelligence",
+    "Click clack goes the code",
+    "Don't look at the logs",
+    "sudo make me a sandwich",
+    "404: Boredom not found",
+    "Your AI bestie"
+)
+$TAGLINE = $TAGLINES[(Get-Random -Maximum $TAGLINES.Count)]
+
+function Write-Info($msg) { Write-Host "[·] $msg" -ForegroundColor $INFO }
+function Write-Warn($msg) { Write-Host "[!] $msg" -ForegroundColor $WARN }
+function Write-Success($msg) { Write-Host "[✓] $msg" -ForegroundColor $SUCCESS }
+function Write-Err($msg) { Write-Host "[✗] $msg" -ForegroundColor $ERROR; exit 1 }
+
+# Banner
 Write-Host ""
-Write-Host "  ____    _             _           _           " -ForegroundColor Magenta
-Write-Host " |  _ \  | |           | |         | |         " -ForegroundColor Magenta
-Write-Host " | | | | | |_  _   _  | |_  _   _ | |_        " -ForegroundColor Magenta
-Write-Host " | | | | | __|| | | | | __|| | | || __|       " -ForegroundColor Magenta
-Write-Host " | |_| | | |_ | |_| | | |_ | |_| || |_        " -ForegroundColor Magenta
-Write-Host "  \___/   \__| \__,_|  \__| \__,_| \__|       " -ForegroundColor Magenta
+Write-Host "  _____   __          ___           ____   _____ " -ForegroundColor $ACCENT
+Write-Host " |  __ \ /\ \        / / |         / __ \ / ____|" -ForegroundColor $ACCENT
+Write-Host " | |__) /  \ \  /\  / /| |  ______| |  | | (___  " -ForegroundColor $ACCENT
+Write-Host " |  ___/ /\ \ \/  \/ / | | |______| |  | |\___ \ " -ForegroundColor $ACCENT
+Write-Host " | |  / ____ \  /\  /  | |____    | |__| |____) |" -ForegroundColor $ACCENT
+Write-Host " |_| /_/    \_\/  \/   |______|    \____/|_____/ " -ForegroundColor $ACCENT
 Write-Host ""
-Write-Info "Installing pawlos..."
+Write-Host "  $TAGLINE" -ForegroundColor $INFO
 Write-Host ""
 
-# Detect architecture
 $arch = $env:PROCESSOR_ARCHITECTURE
 if ($arch -eq "AMD64") { $target = "x86_64-pc-windows-msvc" }
 elseif ($arch -eq "ARM64") { $target = "aarch64-pc-windows-msvc" }
-else { Write-Err "Unsupported architecture: $arch" }
+else { Write-Err "Unsupported: $arch" }
+
+Write-Info "Architecture: $target"
 
 # Create directories
 if (!(Test-Path $INSTALL_DIR)) { 
@@ -41,59 +65,53 @@ if (!(Test-Path $CONFIG_DIR)) {
     New-Item -ItemType Directory -Path $CONFIG_DIR -Force | Out-Null 
 }
 
-# Download latest release
+$exePath = Join-Path $INSTALL_DIR "$BIN_NAME.exe"
+
+# Try download latest release
+Write-Info "Checking for pre-built binary..."
 $apiUrl = "https://api.github.com/repos/$REPO/releases/latest"
-Write-Info "Fetching latest release..."
 
 try {
-    $response = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing
-    $downloadUrl = $response.assets | Where-Object { $_.name -match "pawlos.*windows.*\.exe" } | Select-Object -First 1
+    $response = Invoke-RestMethod -Uri $apiUrl -UseBasicParsing -TimeoutSec 10
+    $asset = $response.assets | Where-Object { $_.name -match "pawlos.*windows.*\.exe" } | Select-Object -First 1
     
-    if (!$downloadUrl) {
-        # Try to find any exe
-        $downloadUrl = $response.assets | Where-Object { $_.name -match "\.exe$" } | Select-Object -First 1
-    }
-    
-    if ($downloadUrl) {
-        Write-Info "Downloading $($downloadUrl.name)..."
-        $exePath = Join-Path $INSTALL_DIR "$BIN_NAME.exe"
-        Invoke-WebRequest -Uri $downloadUrl.browser_download_url -OutFile $exePath -UseBasicParsing
-        Write-Ok "Downloaded to $exePath"
+    if ($asset) {
+        Write-Info "Downloading $($asset.name)..."
+        Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $exePath -UseBasicParsing
+        Write-Success "Downloaded binary"
     } else {
-        Write-Info "No pre-built binary found. Building from source..."
-        # Note: Requires Rust/Cargo
-        if (!(Get-Command cargo -ErrorAction SilentlyContinue)) {
-            Write-Err "Rust not installed. Install from https://rustup.rs"
-        }
-        $tempDir = Join-Path $env:TEMP "pawlos-build"
-        git clone --depth 1 "https://github.com/$REPO.git" $tempDir 2>$null
-        Push-Location $tempDir
-        cargo build --release -p cli --quiet
-        Copy-Item "$tempDir/target/release/pawlos.exe" $exePath
-        Pop-Location
-        Remove-Item $tempDir -Recurse -Force
-        Write-Ok "Built from source"
+        throw "No pre-built binary"
     }
 } catch {
-    Write-Err "Failed to download: $_"
+    Write-Warn "No pre-built binary found"
+    Write-Info "Building from source..."
+    
+    if (!(Get-Command cargo -ErrorAction SilentlyContinue)) {
+        Write-Err "Rust not installed. Install from: https://rustup.rs"
+    }
+    
+    $tmp = Join-Path $env:TEMP "pawlos-build"
+    git clone --depth 1 "https://github.com/$REPO.git" $tmp 2>$null
+    Push-Location $tmp
+    cargo build --release -p cli 2>&1 | Select-Object -Last 5
+    Copy-Item "target\release\pawlos.exe" $exePath -Force
+    Pop-Location
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Success "Built from source"
 }
 
-# Add to PATH (current session + persistent)
+# Add to PATH (current + persistent)
 $pathEntry = $INSTALL_DIR
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 if ($currentPath -notlike "*$pathEntry*") {
-    $newPath = "$currentPath;$pathEntry"
-    [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-    $env:Path = "$env:Path;$pathEntry"  # Current session
-    Write-Ok "Added to PATH"
+    [Environment]::SetEnvironmentVariable("Path", "$currentPath;$pathEntry", "User")
+    $env:Path = "$env:Path;$pathEntry"
+    Write-Success "Added to PATH"
 } else {
     Write-Info "Already in PATH"
 }
 
-# Show where it was installed
-Write-Info "Installed to: $INSTALL_DIR\pawlos.exe"
-
-# Create config directory structure
+# Create config dirs
 New-Item -ItemType Directory -Path "$CONFIG_DIR\memories" -Force | Out-Null
 New-Item -ItemType Directory -Path "$CONFIG_DIR\agents" -Force | Out-Null
 New-Item -ItemType Directory -Path "$CONFIG_DIR\skills" -Force | Out-Null
@@ -101,10 +119,13 @@ New-Item -ItemType Directory -Path "$CONFIG_DIR\logs" -Force | Out-Null
 New-Item -ItemType Directory -Path "$CONFIG_DIR\vector_db" -Force | Out-Null
 New-Item -ItemType Directory -Path "$CONFIG_DIR\mcp_servers" -Force | Out-Null
 
+# Done
 Write-Host ""
-Write-Host "  P A W L - O S   u r   a g e n t   |   b u d d y" -ForegroundColor Cyan
+Write-Host "     P A W L - O S   u r   a g e n t   |   b u d d y" -ForegroundColor Cyan
 Write-Host ""
-Write-Ok "pawlos installed!"
+Write-Success "pawlos installed!"
+Write-Info "Installed to: $exePath"
+Write-Host ""
 Write-Info "Run: pawlos"
-Write-Info "Or:  pawlos onboard (first time setup)"
+Write-Info "Or:  pawlos onboard"
 Write-Host ""
